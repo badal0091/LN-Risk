@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- External Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://unpkg.com/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
+    <title>Complaint Details</title>
+    <!-- Styles -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        .complaint-title {
+            background: #58c7e2;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            height: 50px;
+        }
+
+        .container {
+            display: flex;
+            padding: 20px;
+        }
+
+        .upload-section, .extract-section {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: 600px;
+            overflow: auto;
+        }
+
+        .upload-box {
+            border: 2px dashed #58c7e2;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .upload-box p span {
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        .extract-box {
+            border: 1px solid #ddd;
+            padding: 20px;
+            min-height: 150px;
+            text-align: left;
+        }
+
+        .preview {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Navigation Panel Styles */
+        .nav-panel {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-item {
+            background: #58c7e2;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav-item.active {
+            background: #007bff;
+        }
+
+        .nav-item:hover {
+            background: #007bff;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Complaint Title -->
+    <div class="complaint-title">
+        <h2>Erroneous Bankruptcy Filing, Seeking Correction</h2>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Left Section: File Upload -->
+        <div class="upload-section">
+            <div id="uploadContainer">
+                <h3>Upload Your Files</h3>
+                <div class="upload-box" id="drop-area">
+                    <input type="file" id="fileInput" hidden accept=".pdf, .docx" multiple>
+                    <img src="upload-icon.png" alt="Upload" width="50">
+                    <p>Drag & Drop Your Files Here or <span id="uploadBtn">Upload</span></p>
+                    <small>Supported Formats: PDF, DOCX.</small>
+                </div>
+            </div>
+            <iframe id="preview" class="preview" hidden></iframe>
+        </div>
+
+        <!-- Right Section: Extracted Information -->
+        <div class="extract-section">
+            <h3>Extracted Information</h3>
+            <!-- Navigation Panel -->
+            <div class="nav-panel" id="nav-panel">
+                <!-- Navigation items will be dynamically added here -->
+            </div>
+            <!-- Extracted Data Display -->
+            <div class="extract-box" id="extract-box">
+                <img src="extract-box.png" alt="Extract Box" style="width: 100px; display: block; margin: 0 auto;">
+                <h3>Extracted Information</h3>
+                <p id="extract-text">Upload one or more documents to view extracted details here. This panel will display key information extracted from your documents, such as names, dates, addresses, and other essential data points.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Script -->
+    <script src="script.js"></script>   
+
+</body>
+</html>
