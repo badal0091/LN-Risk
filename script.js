@@ -110,7 +110,7 @@ You are a LNR Analyst who is going through the Complaint letters received from t
 
 Additional Requirements-
 1. Only display the fields that are available only. Not display those fields for which data is not available. Like in some documents, some information are missing so not display that field
-2. Do not provide the extra symbols like hyphen("-") etc in response before any other fields. strictly follow this instructions.`;
+2. Do not provide the extra symbols like hyphen("-"), (###) etc in response before any other fields. strictly follow this instructions.`;
 
     // Data Store for Uploaded Documents
     const documents = [];
