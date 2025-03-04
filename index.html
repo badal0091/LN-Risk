@@ -9,6 +9,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+
+
     <title>Complaint Details</title>
     <!-- Styles -->
     <style>
@@ -22,9 +25,9 @@
         .complaint-title {
             background: #58c7e2;
             color: white;
-            padding: 15px;
-            font-size: 18px;
-            height: 50px;
+            padding: 8px;
+            font-size: 16px;
+            height: 40px;
         }
 
         .container {
@@ -48,6 +51,7 @@
             padding: 30px;
             text-align: center;
             cursor: pointer;
+            height: 138px;
         }
 
         .upload-box p span {
@@ -100,7 +104,7 @@
 
     <!-- Complaint Title -->
     <div class="complaint-title">
-        <h2>Erroneous Bankruptcy Filing, Seeking Correction</h2>
+        <h2>AI Assisted Consumer Complaint</h2>
     </div>
 
     <!-- Main Content -->
@@ -108,7 +112,10 @@
         <!-- Left Section: File Upload -->
         <div class="upload-section">
             <div id="uploadContainer">
-                <h3>Upload Your Files</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 6px;">Upload Your Files</h3>
+                </div>
+                <div class="nav-panel"></div>
                 <div class="upload-box" id="drop-area">
                     <input type="file" id="fileInput" hidden accept=".pdf, .docx" multiple>
                     <img src="upload-icon.png" alt="Upload" width="50">
@@ -121,7 +128,10 @@
 
         <!-- Right Section: Extracted Information -->
         <div class="extract-section">
-            <h3>Extracted Information</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0;">Extracted Information</h3>
+                <button id="downloadButton" style="background: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Download Data</button>
+            </div>            
             <!-- Navigation Panel -->
             <div class="nav-panel" id="nav-panel">
                 <!-- Navigation items will be dynamically added here -->
@@ -129,8 +139,8 @@
             <!-- Extracted Data Display -->
             <div class="extract-box" id="extract-box">
                 <img src="extract-box.png" alt="Extract Box" style="width: 100px; display: block; margin: 0 auto;">
-                <h3>Extracted Information</h3>
-                <p id="extract-text">Upload one or more documents to view extracted details here. This panel will display key information extracted from your documents, such as names, dates, addresses, and other essential data points.</p>
+                <h3 style="text-align: center;">Extracted Information</h3>
+                <p id="extract-text"></p>
             </div>
         </div>
     </div>

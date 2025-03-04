@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const extractBox = document.getElementById("extract-box");
     const uploadContainer = document.getElementById("uploadContainer");
     const navPanel = document.getElementById("nav-panel");
-
+    const downloadButton = document.getElementById("downloadButton"); // Get the download button
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhZGFsLnZhcnNobmV5QHN0cmFpdmUuY29tIn0.ysCmDtq_uD4OUQghTCobhldQFim9ufNG4vSGgb21UXI";
 
     const systemPrompt = `Data Extraction Prompt from letter
@@ -77,9 +77,9 @@ You are a LNR Analyst who is going through the Complaint letters received from t
     **Format of the output:**
     ### Document 1 (Document Type: <Type>)
     Provide all the extracted details here in bullet points.
-    - Summary of Document 1:
+    - **Summary of Document 1:**
     Should highlight/identify what the consumer is stating is wrong and wants to dispute.  The dispute should always pertain to LexisNexis. If the consumer mentions contacting LexisNexis previously and provides a specific date or time frame, this should be captured. Also, if the complaint mentions, any of the following examples: bankruptcy, criminal record, ID theft, fraud, etc. It should be captured as part of the summary. If specific detailed information is provided about the account (i.e. bankruptcy chapter 7 or 13 – case number 123456) the specific information should be listed as well.
-    - Action Items for LexisNexis agent
+    - **Action Items for LexisNexis agent**
     o    Actions should always pertain to LexisNexis representative.
     o    Investigate the items outlined in the complaint and verify for accuracy. 
     o    Respond to regulatory agency by specific due date provided. 
@@ -87,9 +87,9 @@ You are a LNR Analyst who is going through the Complaint letters received from t
 
     ### Document 2 (Document Type: <Type>)
     Provide all the extracted details here in bullet points.
-    - Summary of Document 2:
+    - **Summary of Document 2:**
     Should highlight/identify what the consumer is stating is wrong and wants to dispute.  The dispute should always pertain to LexisNexis. If the consumer mentions contacting LexisNexis previously and provides a specific date or time frame, this should be captured. Also, if the complaint mentions, any of the following examples: bankruptcy, criminal record, ID theft, fraud, etc. It should be captured as part of the summary. If specific detailed information is provided about the account (i.e. bankruptcy chapter 7 or 13 – case number 123456) the specific information should be listed as well.
-    - Action Items for LexisNexis agent
+    - **Action Items for LexisNexis agent:**
     o    Actions should always pertain to LexisNexis representative.
     o    Investigate the items outlined in the complaint and verify for accuracy. 
     o    Respond to regulatory agency by specific due date provided. 
@@ -110,7 +110,9 @@ You are a LNR Analyst who is going through the Complaint letters received from t
 
 Additional Requirements-
 1. Only display the fields that are available only. Not display those fields for which data is not available. Like in some documents, some information are missing so not display that field
-2. Do not provide the extra symbols like hyphen("-"), (###) etc in response before any other fields. strictly follow this instructions.`;
+2. Do not provide the extra symbols like hyphen("-"), (###) etc in response before any other fields. strictly follow this instructions.
+3. Please Provide Summary and Action Items for every documents other than Driving License or Social Security or SSN
+4. For each key:value give respons like **key**:value`;
 
     // Data Store for Uploaded Documents
     const documents = [];
@@ -326,20 +328,17 @@ Additional Requirements-
         extractText.innerHTML = `Analyzing "${fileName}"...`;
 
         try {
-            const response = await fetch("https://llmfoundry.straive.com/openai/v1/chat/completions", {
+            const response = await fetch("https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions ", {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}:ln-consumers-complaint`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o-mini",
+                    model: "gemini-1.5-pro-latest",
                     messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: docContent },
-                        ...(images.length > 0 ? [{ role: "user", content: "Attached images", images }] : [])
-                    ],
-                    max_tokens: 500
+                        { role: "user", content: systemPrompt+docContent },
+                    ]
                 })
             });
 
@@ -446,112 +445,78 @@ Additional Requirements-
 
     // Function to parse the extracted data into key-value pairs
     function parseExtractedData(extractedData) {
-        const lines = extractedData.split('\n').filter(line => line.trim() !== "");
-        const dataObject = {};
+        // const lines = extractedData.split('\n').filter(line => line.trim() !== "");
+        // const dataObject = {};
 
-        lines.forEach(line => {
-            const separatorIndex = line.indexOf(':');
-            if (separatorIndex !== -1) {
-                const key = line.substring(0, separatorIndex).trim();
-                const value = line.substring(separatorIndex + 1).trim();
-                if (key && value) {
-                    dataObject[key] = value;
-                }
-            }
-        });
-
-        return dataObject;
+        // lines.forEach(line => {
+        //     const separatorIndex = line.indexOf(':');
+        //     if (separatorIndex !== -1) {
+        //         const key = line.substring(0, separatorIndex).trim();
+        //         const value = line.substring(separatorIndex + 1).trim();
+        //         if (key && value) {
+        //             dataObject[key] = value;
+        //         }
+        //     }
+        // });
+        html_con =  marked.parse(extractedData.replace(/\n/g, "  \n").replace(/\bo\s+/g, "- "))
+        return html_con;
     }
 
     // Function to create a styled panel from the parsed data
     function createStyledPanel(data) {
-        let panelHTML = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+        // let panelHTML = '<div style="display: flex; flex-direction: column; gap: 10px;">';
 
-        for (const key in data) {
-            panelHTML += `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: bold; color: #333; width: 40%; text-align: left;">${key.replace(/-/g, ' ')}</span>
-                    <span style="color: #555; width: 58%; text-align: left; word-break: break-word; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 12px;">${data[key]}</span>
-                </div>
-            `;
-        }
+        // for (const key in data) {
+        //     panelHTML += `
+        //         <div style="display: flex; justify-content: space-between; align-items: center;">
+        //             <span style="font-weight: bold; color: #333; width: 40%; text-align: left;">${key.replace(/-/g, ' ')}</span>
+        //             <span style="color: #555; width: 58%; text-align: left; word-break: break-word; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 12px;">${data[key]}</span>
+        //         </div>
+        //     `;
+        // }
 
-        panelHTML += '</div>';
+        // panelHTML += '</div>';
 
         // Replace the extract box content
-        extractBox.innerHTML = panelHTML;
-
-        // Add download buttons
-        extractBox.innerHTML += `
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button id="downloadBtn" style="background: #58c7e2; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Download CSV</button>
-                <button id="downloadWordBtn" style="background: #58c7e2; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Download Word</button>
-            </div>
-        `;
-
-        // Add event listeners for download buttons
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            downloadCSV(data);
-        });
-        document.getElementById('downloadWordBtn').addEventListener('click', () => {
-            downloadWord(data);
-        });
+        extractBox.innerHTML = data;
     }
 
-    // Function to download the data as CSV
-    function downloadCSV(data) {
-        const csvRows = [];
-        const headers = Object.keys(data);
-        csvRows.push(headers.join(',')); // Add header row
-
-        const values = headers.map(header => `"${data[header].replace(/"/g, '""')}"`);
-        csvRows.push(values.join(',')); // Add data row
-
-        const csvString = csvRows.join('\n');
-        const blob = new Blob([csvString], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.setAttribute('href', url);
-        a.setAttribute('download', 'extracted_data.csv');
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-
-    // Function to download the data as Word document
-    function downloadWord(data) {
-        const { Document, Packer, Paragraph, TextRun } = docx;
-
-        const doc = new Document();
-
-        // Add content to the document
-        for (const key in data) {
-            const paragraph = new Paragraph({
-                children: [
-                    new TextRun({
-                        text: `${key}: `,
-                        bold: true,
-                    }),
-                    new TextRun({
-                        text: `${data[key]}`,
-                    }),
-                ],
-            });
-            doc.addSection({
-                children: [paragraph],
-            });
+    // Add event listener to the download button
+    downloadButton.addEventListener("click", () => {
+        generateDocFile();
+    });
+      // Function to generate and download the .doc file
+     function generateDocFile() {
+        if (documents.length === 0) {
+            alert("No documents have been uploaded.");
+            return;
         }
 
-        // Create a buffer and trigger download
-        Packer.toBlob(doc).then((blob) => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "extracted_data.docx";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        let docContent = "";
+        documents.forEach((doc, index) => {
+            docContent += `File Name: ${doc.name}\n`;
+            // Get the text content from the extractBox for each document
+            const extractedText = getTextFromExtractBox();
+            docContent += extractedText + "\n\n"; // Append the extracted text
         });
+
+        // Create a Blob with the .doc content
+        const blob = new Blob([docContent], { type: "application/msword" });
+
+        // Create a download link
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "extracted_data.doc"; // Set the filename
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url); // Clean up
     }
-})
+
+    // Function to extract text content from the extractBox
+    function getTextFromExtractBox() {
+        // Get all the text content from the extractBox element
+        return extractBox.textContent || extractBox.innerText || "";
+    }
+});
