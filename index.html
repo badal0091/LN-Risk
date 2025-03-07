@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-
+    <script async src="https://docs.opencv.org/master/opencv.js" onload="cv.onRuntimeInitialized = () => console.log('OpenCV.js Ready!');"></script>
 
     <title>Complaint Details</title>
     <!-- Styles -->
@@ -131,6 +131,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3 style="margin: 0;">Extracted Information</h3>
                 <button id="downloadButton" style="background: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Download Data</button>
+                <button id="consolidatedSummaryButton" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; display: none;">Consolidated Summary</button>
             </div>            
             <!-- Navigation Panel -->
             <div class="nav-panel" id="nav-panel">

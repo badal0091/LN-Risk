@@ -34,80 +34,80 @@ document.addEventListener("DOMContentLoaded", () => {
     const uploadContainer = document.getElementById("uploadContainer");
     const navPanel = document.getElementById("nav-panel");
     const downloadButton = document.getElementById("downloadButton"); // Get the download button
-
+    const consolidatedSummaryButton = document.getElementById("consolidatedSummaryButton");
     const systemPrompt = `You are a document analysis assistant. Your task is to thoroughly examine the provided documents' content, including any information from images, and perform all checks as outlined below.
 
------document start----- and -----document end----- indicate the start and end of document content. Multiple start and end points mean there are multiple documents.
-
-Instructions for all checks:
-
-Perform these checks for each document separately and provide details in distinct sections per document.
-Do not miss any check; all checks must be thoroughly performed.
-Include information from both text and images in your analysis.
-For each document, retrieve the following details (if not present, omit the field):
-
-Document Type: Document File Name:
-
-Consumer Complaint Letter: Document File Name, Full Name, Email, Address, City, State, Zip, POBox, Phone, Fax, Email, Date of Letter, DOB, SSN, Bankruptcy chapter, Case number, Summary, Action Items.
-CFPB: Document File Name, Consumer Complaint ID, Full Name, Email Address, Area Code, Phone, Address, Product or Service, Consumer Identified Company, Name, DOB, Social Security Number (Last Four), Issue, Desired Resolution, Complaint status, Sent to Company, Due Date, Summary, Action Items.
-BBB (Better Business Bureau): Document File Name, Complaint ID, Date Filed, Letter Written To, Letter Written From, Address, Phone, BBB Complaint Analyst, Name, Address, Phone, Email ID, Complaint Involves, Customer's Statement of the Problem, Desired Settlement, Summary, Action Items.
-Driver License: Document File Name, Driver License Number, State, Name, Address, Expiration Date, Date of Birth.
-SSN: Document File Name, SSN Number, Name.
-Passport: Document File Name, Passport Number, Name, Nationality, DOB, Place of Birth, Date Of Issue, Expiration date.
-Attorney General : Document File Name, Submission ID, Full Name, Area Code, Phone Number, Email, Address, City, State, Zip, Name of Consumer, Company Name, Company Website, Desired Resolution, Comment Or Question Message, Summary, Action Item.
-DEPARTMENT OF JUSTICE: Complaint ID, PIU, From details (Full Name, Area code, Phone, Email Address, Address, City, State, Zip code), To details (P.O. Box, Phone, E-mail, Fax), Name of the consumer, Staff.
-Case Summary: Complaint ID, Date filed, Case number, Chapter Number, Bankruptcy disposition, Date reported, Court number/name, Current disposition date, Date verified, Prior disposition.
-Any other relevant document types and their specific fields
-Ensure the following:
-
-Extract all relevant information from both text and images in each document.
-For each document, summarize the content, including information from images.
-Provide action items based on each document's content.
-No duplicate entries in the output.
-Display only available fields (omit placeholders for missing details).
-For Driver License, Social Security, or SSN documents, provide the extracted information without summary or action items.
- Ensure the following:
-    - **For each document**, summarize the content of the letter.
-    - **Action items** should be provided based on each document’s content.
-    - No duplicate entries are present in the output.
-    - Display only available fields (if details are missing, do not include placeholders like "Not provided").
-**Format of the output:**
-    ### Document 1 (Document Type: <Type>)
-    Provide all the extracted details here in bullet points.
-    - **Summary of Document 1:**
-    Should highlight/identify what the consumer is stating is wrong and wants to dispute.  The dispute should always pertain to LexisNexis. If the consumer mentions contacting LexisNexis previously and provides a specific date or time frame, this should be captured. Also, if the complaint mentions, any of the following examples: bankruptcy, criminal record, ID theft, fraud, etc. It should be captured as part of the summary. If specific detailed information is provided about the account (i.e. bankruptcy chapter 7 or 13 – case number 123456) the specific information should be listed as well.
-    - **Action Items for LexisNexis agent**
-    o    Actions should always pertain to LexisNexis representative.
-    o    Investigate the items outlined in the complaint and verify for accuracy. 
-    o    Respond to regulatory agency by specific due date provided. 
-    o    Ensure that the response is factual and does not create liability.
-
-    ### Document 2 (Document Type: <Type>)
-    Provide all the extracted details here in bullet points.
-    - **Summary of Document 2:**
-    Should highlight/identify what the consumer is stating is wrong and wants to dispute.  The dispute should always pertain to LexisNexis. If the consumer mentions contacting LexisNexis previously and provides a specific date or time frame, this should be captured. Also, if the complaint mentions, any of the following examples: bankruptcy, criminal record, ID theft, fraud, etc. It should be captured as part of the summary. If specific detailed information is provided about the account (i.e. bankruptcy chapter 7 or 13 – case number 123456) the specific information should be listed as well.
-    - **Action Items for LexisNexis agent**
-    o    Actions should always pertain to LexisNexis representative.
-    o    Investigate the items outlined in the complaint and verify for accuracy. 
-    o    Respond to regulatory agency by specific due date provided. 
-    o    Ensure that the response is factual and does not create liability.
-    ...
-
-    ### Final Consolidated Summary
-    Provide a final eloberate summary here, consolidating all the unique information from the documents.
-
-    ### Final Items for LexisNexis agent
-    o    Perform thorough investigation into consumers disputes.
-    o    AI provides specific items consumer is disputing for agent if provided and or provided keyword(s) disputed.
-    o    AI provides due date that agent should respond back to agency by.  
-    o    Identify any additional requests from consumer such as provide proof of my signature. How did you verify my record?
-    o    If consumer mentions any escalation path such as litigation and or regulatory agency, please add this.
-
-     Additional Requirements-
-    1. If Document Type if Driving License or Social Security or SSN - Don't do summary or Consolidated Summary or Items for LexisNexis agent and action items for these individual documents.
-    2. For each key:value give respons like **key**:value.
-`;
-
+    -----document start----- and -----document end----- indicate the start and end of document content. Multiple start and end points mean there are multiple documents.
+    
+    Instructions for all checks:
+    
+    Perform these checks for each document separately and provide details in distinct sections per document.
+    Do not miss any check; all checks must be thoroughly performed.
+    Include information from both text and images in your analysis.
+    For each document, retrieve the following details (if not present, omit the field):
+    
+    Document Type: Document File Name:
+    
+    Consumer Complaint Letter: Document File Name, Full Name, Email, Address, City, State, Zip, POBox, Phone, Fax, Email, Date of Letter, DOB, SSN, Bankruptcy chapter, Case number, Summary, Action Items.
+    CFPB: Document File Name, Consumer Complaint ID, Full Name, Email Address, Area Code, Phone, Address, Product or Service, Consumer Identified Company, Name, DOB, Social Security Number (Last Four), Issue, Desired Resolution, Complaint status, Sent to Company, Due Date, Summary, Action Items.
+    BBB (Better Business Bureau): Document File Name, Complaint ID, Date Filed, Letter Written To, Letter Written From, Address, Phone, BBB Complaint Analyst, Name, Address, Phone, Email ID, Complaint Involves, Customer's Statement of the Problem, Desired Settlement, Summary, Action Items.
+    Driver License: Document File Name, Driver License Number, State, Name, Address, Expiration Date, Date of Birth.
+    SSN: Document File Name, SSN Number, Name.
+    Passport: Document File Name, Passport Number, Name, Nationality, DOB, Place of Birth, Date Of Issue, Expiration date.
+    Attorney General : Document File Name, Submission ID, Full Name, Area Code, Phone Number, Email, Address, City, State, Zip, Name of Consumer, Company Name, Company Website, Desired Resolution, Comment Or Question Message, Summary, Action Item.
+    DEPARTMENT OF JUSTICE: Complaint ID, PIU, From details (Full Name, Area code, Phone, Email Address, Address, City, State, Zip code), To details (P.O. Box, Phone, E-mail, Fax), Name of the consumer, Staff.
+    Case Summary: Complaint ID, Date filed, Case number, Chapter Number, Bankruptcy disposition, Date reported, Court number/name, Current disposition date, Date verified, Prior disposition.
+    Any other relevant document types and their specific fields
+    Ensure the following:
+    
+    Extract all relevant information from both text and images in each document.
+    For each document, summarize the content, including information from images.
+    Provide action items based on each document's content.
+    No duplicate entries in the output.
+    Display only available fields (omit placeholders for missing details).
+    For Driver License, Social Security, or SSN documents, provide the extracted information without summary or action items.
+     Ensure the following:
+        - **For each document**, summarize the content of the letter.
+        - **Action items** should be provided based on each document’s content.
+        - No duplicate entries are present in the output.
+        - Display only available fields (if details are missing, do not include placeholders like "Not provided").
+    **Format of the output:**
+        ### Document 1 (Document Type: <Type>)
+        Provide all the extracted details here in bullet points.
+        - **Summary of Document 1:**
+        Should highlight/identify what the consumer is stating is wrong and wants to dispute.  The dispute should always pertain to LexisNexis. If the consumer mentions contacting LexisNexis previously and provides a specific date or time frame, this should be captured. Also, if the complaint mentions, any of the following examples: bankruptcy, criminal record, ID theft, fraud, etc. It should be captured as part of the summary. If specific detailed information is provided about the account (i.e. bankruptcy chapter 7 or 13 – case number 123456) the specific information should be listed as well.
+        - **Action Items for LexisNexis agent**
+        o    Actions should always pertain to LexisNexis representative.
+        o    Investigate the items outlined in the complaint and verify for accuracy. 
+        o    Respond to regulatory agency by specific due date provided. 
+        o    Ensure that the response is factual and does not create liability.
+    
+        ### Document 2 (Document Type: <Type>)
+        Provide all the extracted details here in bullet points.
+        - **Summary of Document 2:**
+        Should highlight/identify what the consumer is stating is wrong and wants to dispute.  The dispute should always pertain to LexisNexis. If the consumer mentions contacting LexisNexis previously and provides a specific date or time frame, this should be captured. Also, if the complaint mentions, any of the following examples: bankruptcy, criminal record, ID theft, fraud, etc. It should be captured as part of the summary. If specific detailed information is provided about the account (i.e. bankruptcy chapter 7 or 13 – case number 123456) the specific information should be listed as well.
+        - **Action Items for LexisNexis agent**
+        o    Actions should always pertain to LexisNexis representative.
+        o    Investigate the items outlined in the complaint and verify for accuracy. 
+        o    Respond to regulatory agency by specific due date provided. 
+        o    Ensure that the response is factual and does not create liability.
+    
+         Additional Requirements-
+        1. If Document Type if Driving License or Social Security or SSN - Don't do summary or Consolidated Summary or Items for LexisNexis agent and action items for these individual documents.
+        2. For each key:value give respons like **key**:value.
+    `;
+    
+        const systemPrompt2 = `Generate a Final Consolidated Summary and Final Items for LexisNexis agent based on the above documents. Ensure the following:
+         ### Final Consolidated Summary
+        Provide a final eloberate summary here, consolidating all the unique information from the documents.
+    
+        ### Final Items for LexisNexis agent
+        o    Perform thorough investigation into consumers disputes.
+        o    AI provides specific items consumer is disputing for agent if provided and or provided keyword(s) disputed.
+        o    AI provides due date that agent should respond back to agency by.  
+        o    Identify any additional requests from consumer such as provide proof of my signature. How did you verify my record?
+        o    If consumer mentions any escalation path such as litigation and or regulatory agency, please add this.
+        `;
 
     // Data Store for Uploaded Documents
     const documents = [];
@@ -154,11 +154,15 @@ For Driver License, Social Security, or SSN documents, provide the extracted inf
         document.getElementById("reuploadBtn").addEventListener("click", () => fileInput.click());
     }
 
-    // Handle multiple file uploads
+    let filesProcessed = 0;
+    let totalFiles = 0;
+
     function handleFilesUpload(files) {
         if (files.length === 0) return;
 
         updateUploadUI(files);
+        totalFiles = files.length; // Set the total number of files
+        filesProcessed = 0; // Reset the counter
 
         files.forEach((file) => {
             if (file.type === "application/pdf") {
@@ -169,11 +173,13 @@ For Driver License, Social Security, or SSN documents, provide the extracted inf
                 extractTextFromImage(file);
             } else {
                 alert(`Unsupported file type: ${file.type}`);
+                filesProcessed++; // Increment even on error to avoid getting stuck
+                checkIfAllFilesProcessed();
             }
         });
     }
 
-    // Function to extract text from PDF
+    // Modify extractTextFromPDF, extractTextFromDOCX, extractTextFromImage to call checkIfAllFilesProcessed after processing
     async function extractTextFromPDF(file) {
         try {
             const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
@@ -216,10 +222,12 @@ For Driver License, Social Security, or SSN documents, provide the extracted inf
         } catch (error) {
             console.error("Error extracting PDF:", error);
             alert(`Error processing PDF file: ${file.name}`);
+        } finally {
+            filesProcessed++;
+            checkIfAllFilesProcessed();
         }
     }
 
-    // Function to extract text from DOCX
     function extractTextFromDOCX(file) {
         const reader = new FileReader();
         reader.onload = async function (event) {
@@ -235,12 +243,14 @@ For Driver License, Social Security, or SSN documents, provide the extracted inf
             } catch (err) {
                 console.error(err);
                 alert(`Error extracting text from DOCX file: ${file.name}`);
+            } finally {
+                filesProcessed++;
+                checkIfAllFilesProcessed();
             }
         };
         reader.readAsArrayBuffer(file);
     }
 
-    // Function to extract text from Image using Tesseract.js
     async function extractTextFromImage(file) {
         try {
             const reader = new FileReader();
@@ -258,8 +268,18 @@ For Driver License, Social Security, or SSN documents, provide the extracted inf
         } catch (error) {
             console.error("Error extracting image:", error);
             alert(`Error processing image file: ${file.name}`);
+        } finally {
+            filesProcessed++;
+            checkIfAllFilesProcessed();
         }
     }
+
+    function checkIfAllFilesProcessed() {
+        if (filesProcessed === totalFiles) {
+            consolidatedSummaryButton.style.display = "inline-block"; // Show the button
+        }
+    }
+
 
     // Function to perform OCR on images extracted from PDF
     async function extractTextFromImages(images) {
@@ -480,20 +500,25 @@ For Driver License, Social Security, or SSN documents, provide the extracted inf
     downloadButton.addEventListener("click", () => {
         generateDocFile();
     });
-      // Function to generate and download the .doc file
-     function generateDocFile() {
+
+
+     // Function to generate and download the .doc file
+    function generateDocFile() {
         if (documents.length === 0) {
             alert("No documents have been uploaded.");
             return;
         }
 
         let docContent = "";
-        documents.forEach((doc, index) => {
+        documents.forEach((doc) => {
             docContent += `File Name: ${doc.name}\n`;
-            // Get the text content from the extractBox for each document
-            const extractedText = getTextFromExtractBox();
-            docContent += extractedText + "\n\n"; // Append the extracted text
+            docContent += `Extracted Data:\n${parseExtractedData(doc.data)}\n\n`; // Append the extracted text
         });
+
+        // Add consolidated summary if available
+        if (consolidatedSummary) {
+            docContent += `Consolidated Summary:\n${consolidatedSummary}\n\n`;
+        }
 
         // Create a Blob with the .doc content
         const blob = new Blob([docContent], { type: "application/msword" });
@@ -509,9 +534,55 @@ For Driver License, Social Security, or SSN documents, provide the extracted inf
         URL.revokeObjectURL(url); // Clean up
     }
 
-    // Function to extract text content from the extractBox
-    function getTextFromExtractBox() {
-        // Get all the text content from the extractBox element
-        return extractBox.textContent || extractBox.innerText || "";
+    
+    // Variable to store consolidated summary
+    let consolidatedSummary = "";
+
+    // Update the consolidated summary button event listener
+    consolidatedSummaryButton.addEventListener("click", async () => {
+        // Get all extracted data
+        let docContent = "";
+        documents.forEach((doc) => {
+            docContent += `File Name: ${doc.name}\n`;
+            docContent += `Extracted Data:\n${parseExtractedData(doc.data)}\n\n`; // Append the extracted text
+        });
+        const allExtractedData = docContent;
+
+        // Show generating message in UI
+        extractText.innerHTML = "Generating consolidated summary...";
+
+        // Send to LLM for consolidated summary
+        consolidatedSummary = await getConsolidatedSummary(allExtractedData);
+
+        // Display the consolidated result
+        createStyledPanel(consolidatedSummary);
+    });
+
+    async function getConsolidatedSummary(allExtractedData) {
+        try {
+            const response = await fetch("https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions ", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}:ln-consumers-complaint`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "gemini-2.0-flash",
+                    messages: [
+                        { role: "user", content: systemPrompt2 + allExtractedData },
+                    ]
+                })
+            });
+
+            const data = await response.json();
+            const consolidatedData = data.choices[0].message.content;
+            extractText.innerHTML = "Consolidated summary generated.";
+            return marked.parse(consolidatedData.replace(/\n/g, "  \n").replace(/\bo\s+/g, "- "));
+        } catch (error) {
+            extractText.innerHTML = "Error generating consolidated summary.";
+            console.error(error);
+            alert("Error generating consolidated summary.");
+            return "Error generating consolidated summary.";
+        }
     }
 });
