@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     BBB (Better Business Bureau): Document File Name, Complaint ID, Date Filed, Letter Written To, Letter Written From, Address, Phone, BBB Complaint Analyst, Name, Address, Phone, Email ID, Complaint Involves, Customer's Statement of the Problem, Desired Settlement, Summary, Action Items.
     Driver License: Document File Name, Driver License Number, State, Name, Address, Expiration Date, Date of Birth.
     SSN: Document File Name, SSN Number, Name.
+    Social Security: Document File Name, SSN Number, Name.
     Passport: Document File Name, Passport Number, Name, Nationality, DOB, Place of Birth, Date Of Issue, Expiration date.
     Attorney General : Document File Name, Submission ID, Full Name, Area Code, Phone Number, Email, Address, City, State, Zip, Name of Consumer, Company Name, Company Website, Desired Resolution, Comment Or Question Message, Summary, Action Item.
     DEPARTMENT OF JUSTICE: Complaint ID, PIU, From details (Full Name, Area code, Phone, Email Address, Address, City, State, Zip code), To details (P.O. Box, Phone, E-mail, Fax), Name of the consumer, Staff.
@@ -98,7 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     
         const systemPrompt2 = `Generate a Final Consolidated Summary and Final Items for LexisNexis agent based on the above documents. Ensure the following:
-         ### Final Consolidated Summary
+        Provide consolidated summary should be in bullet points in bullet points.
+
+        ### Final Consolidated Summary
         Provide a final eloberate summary here, consolidating all the unique information from the documents.
     
         ### Final Items for LexisNexis agent
@@ -281,16 +284,63 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // Function to perform OCR on images extracted from PDF
+    async function preprocessImage(base64Image) {
+        const img = new Image();
+        img.src = base64Image;
+    
+        return new Promise((resolve) => {
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+    
+                // Resize the image
+                const scaleFactor = 2; // Adjust as needed
+                canvas.width = img.width / scaleFactor;
+                canvas.height = img.height / scaleFactor;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+                // Convert to grayscale
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+    
+                for (let i = 0; i < data.length; i += 4) {
+                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    data[i] = avg;     // Red
+                    data[i + 1] = avg; // Green
+                    data[i + 2] = avg; // Blue
+                }
+                ctx.putImageData(imageData, 0, 0);
+    
+                // Apply thresholding
+                const threshold = 128; // Adjust threshold as needed
+                for (let i = 0; i < data.length; i += 4) {
+                    const brightness = data[i]; // Grayscale value
+                    const value = brightness < threshold ? 0 : 255;
+                    data[i] = value;     // Red
+                    data[i + 1] = value; // Green
+                    data[i + 2] = value; // Blue
+                }
+                ctx.putImageData(imageData, 0, 0);
+    
+                // Get the processed image as base64
+                const processedBase64 = canvas.toDataURL('image/png');
+                resolve(processedBase64);
+            };
+        });
+    }
+
     async function extractTextFromImages(images) {
         extractText.innerHTML = "Analyzing document..."; // Show status in UI
         const apiEndpoint = "https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions";
-
+    
         let ocrResults = [];
-
+    
         for (const img of images) {
             const base64Image = img.split(",")[1]; // Remove the "data:image/png;base64," part
-
+    
+            // Preprocess the image
+            const processedImage = await preprocessImage(`data:image/png;base64,${base64Image}`);
+    
             const body = {
                 model: "gemini-exp-1206",
                 response_format: { type: "json_object" },
@@ -304,13 +354,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         content: [
                             {
                                 type: "image_url",
-                                image_url: { url: `data:image/png;base64,${base64Image}` }
+                                image_url: { url: processedImage }
                             }
                         ]
                     }
                 ]
             };
-
+    
             try {
                 const response = await fetch(apiEndpoint, {
                     method: "POST",
@@ -320,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                     body: JSON.stringify(body)
                 });
-
+    
                 const responseData = await response.json();
                 const extractedText = responseData.choices?.[0]?.message?.content || "";
                 ocrResults.push(extractedText);
@@ -329,7 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ocrResults.push(""); // In case of an error, return an empty string
             }
         }
-
+    
         return ocrResults;
     }
 
@@ -563,7 +613,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch("https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions ", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${token}:ln-consumers-complaint`,
+                    "Authorization": `Bearer ${token}:ln-summary`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
