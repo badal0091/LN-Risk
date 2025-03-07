@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     Driver License: Document File Name, Driver License Number, State, Name, Address, Expiration Date, Date of Birth.
     SSN: Document File Name, SSN Number, Name.
     Social Security: Document File Name, SSN Number, Name.
+    Bank Statements: Document File Name, Full Name, Address, City, State, Zip , Statement Period, Phone Number.
     Passport: Document File Name, Passport Number, Name, Nationality, DOB, Place of Birth, Date Of Issue, Expiration date.
     Attorney General : Document File Name, Submission ID, Full Name, Area Code, Phone Number, Email, Address, City, State, Zip, Name of Consumer, Company Name, Company Website, Desired Resolution, Comment Or Question Message, Summary, Action Item.
     DEPARTMENT OF JUSTICE: Complaint ID, PIU, From details (Full Name, Area code, Phone, Email Address, Address, City, State, Zip code), To details (P.O. Box, Phone, E-mail, Fax), Name of the consumer, Staff.
