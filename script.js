@@ -13,6 +13,7 @@ window.onload = async function() {
 
     if (data && data.token) {
       token = data.token;
+      console.log(token);
     } else {
       token = null;
       console.warn("Token not found in response:", data); // Log the response for debugging
@@ -188,46 +189,107 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function pdfToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                // Extract only the Base64 string (remove the data URL prefix)
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = error => reject(error);
+        });
+    }
+
     // Modify extractTextFromPDF, extractTextFromDOCX, extractTextFromImage to call checkIfAllFilesProcessed after processing
     async function extractTextFromPDF(file) {
         try {
             const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
-            let doc_content = "";
-            let images = [];
+            if (pdf.numPages <= 5){
+                let doc_content = "";
+                let images = [];
 
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                const pageText = textContent.items.map(item => item.str).join(" ");
-                doc_content += pageText + "\n";
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(" ");
+                    doc_content += pageText + "\n";
 
-                // Render page to an image for OCR
-                const scale = 2; // High resolution for better OCR accuracy
-                const viewport = page.getViewport({ scale });
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
+                    // Render page to an image for OCR
+                    const scale = 2; // High resolution for better OCR accuracy
+                    const viewport = page.getViewport({ scale });
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
 
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
+                    const renderContext = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+
+                    await page.render(renderContext).promise;
+                    images.push(canvas.toDataURL("image/png")); // Convert canvas to base64 image
+                }
+
+                // Perform OCR using LLM API
+                const ocrTexts = await extractTextFromImages(images);
+                doc_content += "\n" + ocrTexts.join("\n");
+
+                // Send all extracted text and images for processing
+                const extractedData = await sendToLLM(file.name, file.name+doc_content, images);
+
+                if (extractedData) {
+                    addDocument(file.name, "PDF", extractedData, images, file);
+                }
+            }
+            else{
+                // const base64_pdf = pdfToBase64(file);
+                const reader = new FileReader();
+                reader.onload = async function (event) {
+                    const base64_pdf = btoa(event.target.result); // Convert to Base64
+                    const body = {
+                        model: "gemini-2.0-flash",
+                        response_format: { type: "json_object" },
+                        messages: [
+                            {
+                                role: "system",
+                                content: "Extract information from this image and return it as JSON. Values must be scalars. Even if you cannot process the image, try to get information from it."
+                            },
+                            {
+                                role: "user",
+                                content: [
+                                    {
+                                        type: "image_url",
+                                        image_url: { url: `data:application/pdf;base64,${base64_pdf}` }
+                                    }
+                                ]
+                            }
+                        ]
+                    };
+            
+                    const response = await fetch("https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${token}:big-doc-analysis-ln-risk`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(body)
+                    });
+    
+                    const responseData = await response.json();
+                    const extractedText = responseData.choices?.[0]?.message?.content || "";
+                    console.log(extractText);
+                    // Send all extracted text and images for processing
+                    const extractedData = await sendToLLM(file.name, file.name+extractedText, []);
+
+                    if (extractedData) {
+                        addDocument(file.name, "PDF", extractedData, [], file);
+                    }    
                 };
-
-                await page.render(renderContext).promise;
-                images.push(canvas.toDataURL("image/png")); // Convert canvas to base64 image
-            }
-
-            // Perform OCR using LLM API
-            const ocrTexts = await extractTextFromImages(images);
-            doc_content += "\n" + ocrTexts.join("\n");
-
-            // Send all extracted text and images for processing
-            const extractedData = await sendToLLM(file.name, file.name+doc_content, images);
-
-            if (extractedData) {
-                addDocument(file.name, "PDF", extractedData, images, file);
-            }
+                reader.readAsBinaryString(file); 
+            }    
         } catch (error) {
             console.error("Error extracting PDF:", error);
             alert(`Error processing PDF file: ${file.name}`);
