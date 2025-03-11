@@ -204,6 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Modify extractTextFromPDF, extractTextFromDOCX, extractTextFromImage to call checkIfAllFilesProcessed after processing
     async function extractTextFromPDF(file) {
+        extractText.innerHTML = "Analyzing document..."; // Show status in UI
         try {
             const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
             if (pdf.numPages <= 5){
