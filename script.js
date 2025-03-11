@@ -13,7 +13,7 @@ window.onload = async function() {
 
     if (data && data.token) {
       token = data.token;
-      console.log(token);
+      // console.log(token);
     } else {
       token = null;
       console.warn("Token not found in response:", data); // Log the response for debugging
