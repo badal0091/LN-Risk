@@ -13,7 +13,7 @@ window.onload = async function() {
 
     if (data && data.token) {
       token = data.token;
-      // console.log(token);
+    //   console.log(token);
     } else {
       token = null;
       console.warn("Token not found in response:", data); // Log the response for debugging
@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
                     const responseData = await response.json();
                     const extractedText = responseData.choices?.[0]?.message?.content || "";
-                    console.log(extractText);
+                    // console.log(extractText);
                     // Send all extracted text and images for processing
                     const extractedData = await sendToLLM(file.name, file.name+extractedText, []);
 
