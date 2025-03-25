@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- External Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.min.js"></script>
     <script src="https://unpkg.com/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-    <script async src="https://docs.opencv.org/master/opencv.js" onload="cv.onRuntimeInitialized = () => console.log('OpenCV.js Ready!');"></script>
 
     <title>Complaint Details</title>
     <!-- Styles -->
@@ -98,6 +97,57 @@
             background: #007bff;
         }
 
+        /* Percentage Indicator Styles */
+        .percentage-indicator {
+            position: fixed;
+            bottom: 1px;
+            right: 25px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 800px;
+        }
+
+        .percentage-indicator span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .percentage-indicator .range-91-100 {
+            background-color: #3DC03C; /* Example color */
+        }
+
+        .percentage-indicator .range-81-90 {
+            background-color: #F4BB1B; /* Example color */
+        }
+
+        .percentage-indicator .range-61-80 {
+            background-color: #F13637; /* Example color */
+        }
+        .percentage-indicator .range-else {
+            background-color: grey; /* Example color */
+        }
+
+        #consolidateSummaryButton {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #consolidateSummaryButton:hover {
+            background-color: #0056b3;
+        }
+
     </style>
 </head>
 <body>
@@ -130,8 +180,8 @@
         <div class="extract-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3 style="margin: 0;">Extracted Information</h3>
-                <button id="downloadButton" style="background: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Download Data</button>
-                <button id="consolidatedSummaryButton" style="background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; display: none;">Consolidated Summary</button>
+                
+                
             </div>            
             <!-- Navigation Panel -->
             <div class="nav-panel" id="nav-panel">
@@ -142,10 +192,25 @@
                 <img src="extract-box.png" alt="Extract Box" style="width: 100px; display: block; margin: 0 auto;">
                 <h3 style="text-align: center;">Extracted Information</h3>
                 <p id="extract-text"></p>
+            </div>        
+        </div>
+        <div class="percentage-indicator" id="percentage-indicator" style="display: none;">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <!-- <div>
+                    <span class="range-91-100"></span> 91% - 100%
+                    <span class="range-81-90"></span> 81% - 90%
+                    <span class="range-61-80"></span> 61% - 80%
+                    <span class="range-else"></span> Else
+                </div> -->
+                <div>
+                    <button id="consolidatedSummaryButton" style="background: #58c7e2; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Consolidated Summary</button>
+                    <button id="downloadButton" style="background: #58c7e2; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Download Data</button>
+                </div>
             </div>
         </div>
+        
     </div>
-
+    
     <!-- External Script -->
     <script src="script.js" type="module"></script>   
 
