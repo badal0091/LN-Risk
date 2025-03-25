@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const extractedData = await sendToLLM(file.name, file.name+extractedText, [], "PDF");
 
                     if (extractedData) {
-                        addDocument(file.name, "PDF", extractedData, [], file, doc_content);
+                        addDocument(file.name, "PDF", extractedData, [], file, extractedText);
                     }    
                 };
                 reader.readAsBinaryString(file); 
@@ -382,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         ### Document 1: (<Document Type>)
         Provide all the extracted details here in bullet points including Summary and Action Items.
-        **Summary of Document 1**:  Should highlight/identify what the consumer is stating is wrong and wants to dispute.  The dispute should always pertain to Company/Customer. If the consumer mentions contacting Company/Customer previously and provides a specific date or time frame, this should be captured. Also, if the complaint mentions, any of the following examples: bankruptcy, criminal record, ID theft, fraud, etc. It should be captured as part of the summary. If specific detailed information is provided about the account (i.e. bankruptcy chapter 7 or 13 – case number 123456) the specific information should be listed as well.
+        **Summary of Document 1**:  Should highlight/identify what the consumer is stating is wrong and wants to dispute. The dispute should always pertain to Company/Customer. If the consumer mentions contacting Company/Customer previously and provides a specific date or time frame, this should be captured. Also, if the complaint mentions, any of the following examples: bankruptcy, criminal record, ID theft, fraud, etc. It should be captured as part of the summary. If specific detailed information is provided about the account (i.e. bankruptcy chapter 7 or 13 – case number 123456) the specific information should be listed as well.
         **Action Items for Customer Care Agent**:
         o    Actions should always pertain to representative.
         o    Investigate the items outlined in the complaint and verify for accuracy. 
@@ -393,6 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
         1. If Document Type if Driving License or Social Security or SSN or Gas Bill or Passport or Bank statements or Telephone Bills - Don't do summary and action items for these individual documents.
         2. For each key:value give response like **key**:value.
         3. Only Extract all the information that is given above instead of other.
+        4. Summary and Action Items should be in bullet points.
         `;
 
     async function extractDataBasedOnType(fileName, docContent, documentType) {
@@ -614,21 +615,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Function to create a styled panel from the extracted data
     function createStyledPanel(extractedData) {
         let panelHTML = '<div style="display: flex; flex-direction: column; gap: 20px;">';
-
+    
         // Iterate through each document object in the array
-        extractedData.forEach(doc => {
+        extractedData.forEach((doc, docIndex) => { // Get the document index
             panelHTML += `<div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">`; // Add a border around each document
-
+    
             for (const key in doc) {
                 if (doc.hasOwnProperty(key)) {
                     const valueObj = doc[key];
                     let value = valueObj.value;
                     const isCorrect = valueObj.is_correct;
                     const comment = valueObj.comment;
-
+    
                     // Determine color based on accuracy
                     let correctnessIndicator = 'grey'; // Default if no accuracy
                     if (isCorrect === "1") {
@@ -636,12 +636,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     } else if (isCorrect === "0") {
                         correctnessIndicator = 'red'; // Red for incorrect
                     }
-
+    
                     // Create a row for key-value pair
                     panelHTML += `
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: bold; color: #333; width: 40%; text-align: left;">${key.replace(/-/g, ' ').replace(/\*/g, '')}</span>
-                            <span style="color: #555; width: 58%; text-align: left; word-break: break-word; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 12px;">${value}</span>
+                            <textarea
+                                style="color: #555; width: 58%; text-align: left; word-break: break-word; background: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 12px; font-family: serif; font-size: 16px; resize: none; overflow-y: hidden; margin-bottom: 12px; box-sizing: border-box;"
+                                data-doc-index="${docIndex}"
+                                data-key="${key}"
+                                class="editable-value"
+                                oninput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
+                            >${value}</textarea>
                             <span style="width: 12px; height: 12px; border-radius: 50%; background-color: ${correctnessIndicator}; display: inline-block; margin-left: 5px;"
                                   ${comment ? `title="${comment}"` : ''}></span>
                         </div>
@@ -650,9 +656,27 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             panelHTML += `</div>`; // Close the border around each document
         });
-
+    
         panelHTML += '</div>';
         extractBox.innerHTML = panelHTML; // Render into frontend
+    
+        // Add event listeners to the editable fields *after* they're added to the DOM
+        const editableValues = document.querySelectorAll(".editable-value");
+        editableValues.forEach(textarea => {
+            textarea.addEventListener("blur", (event) => {
+                const new_value = event.target.value;
+                const docIndex = parseInt(event.target.dataset.docIndex);
+                const key = event.target.dataset.key;
+    
+                // Update the documents array
+                extractedData[docIndex][key].value = new_value;
+                documents.forEach(doc => {
+                    if (doc.data === extractedData) {
+                        doc.data[docIndex][key].value = new_value;
+                    }
+                });
+            });
+        });
     }
 
 
@@ -662,7 +686,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-     // Function to generate and download the .doc file
+     
+    // Modify generateDocFile to use the updated values
     function generateDocFile() {
         if (documents.length === 0) {
             alert("No documents have been uploaded.");
@@ -670,7 +695,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         let docContent = "";
-        let i=1;
+        let i = 1;
         documents.forEach((doc) => {
             docContent += `File Name-${i}: ${doc.name}\n`;
             let data1 = doc.data;
@@ -683,7 +708,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 }
             });
-            i = i+1;
+            i = i + 1;
         });
 
         // Add consolidated summary if available
@@ -728,16 +753,16 @@ document.addEventListener("DOMContentLoaded", () => {
         // Display the consolidated result
         extractBox.innerHTML = marked.parse(consolidatedSummary);
     });
-
-
+    
     const systemPrompt2 = `Generate a Final Consolidated Summary and Final Items for Customer Care agent based on the above documents. Ensure the following:
         Provide consolidated summary should be in bullet points in bullet points.
     
     ### Final Consolidated Summary
-    Documents Present:
-    Consumer Name:
-    Address:
-    SSN: 
+    - Documents Present:
+    - Consumer Name:
+    - Address:
+    - SSN: 
+    Do not include any other information or comments from acutal data other than above four things.
    Provide a final elaborate summary here, consolidating all the unique information from the documents. Please provide the summary in bullet points.
 
     ### Final Items for Customer Care agent
@@ -745,7 +770,9 @@ document.addEventListener("DOMContentLoaded", () => {
     o    AI provides specific items consumer is disputing for agent if provided and or provided keyword(s) disputed.
     o    AI provides due date that agent should respond back to agency by.  
     o    Identify any additional requests from consumer such as provide proof of my signature. How did you verify my record?
-    o    If consumer mentions any escalation path such as litigation and or regulatory agency, please add this. `;
+    o    If consumer mentions any escalation path such as litigation and or regulatory agency, please add this.
+    
+    `;
 
     async function getConsolidatedSummary(allExtractedData) {
         try {
